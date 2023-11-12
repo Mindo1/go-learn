@@ -1,27 +1,26 @@
 package main
 
-import "fmt"
-
-func GetMember() {
-	fmt.Println("please wait...")
-}
+import (
+	"fmt"
+	"time"
+)
 
 func IsInSyetem(username string) bool {
 	return true
 }
 
 func GetUserDetail(username string) (int, string) {
-	
+
 	return 201, "manager"
 }
 
 func GetDeparture(username string, departure *string) {
-	if username != ""{
+	if username != "" {
 		*departure = "home"
 	}
 }
 
-func CheckLogin (username string, password string) {
+func CheckLogin(username string, password string) {
 	if IsInSyetem(username) {
 		fmt.Println("found user in system")
 		GetUserDetail(username)
@@ -31,6 +30,30 @@ func CheckLogin (username string, password string) {
 	}
 }
 
-func main(){
+func LogEnd() {
+	time.Now()
+	fmt.Println("completed program")
+	fmt.Println(time.Now())
+
+}
+
+func GetMember() {
+	fmt.Println("please wait...")
+	time.Sleep(3 * time.Second)
+}
+
+func CheckServerResponse() {
+	fmt.Println("check server time")
+	time.Sleep(3 * time.Second)
+	panic("server error")
+}
+
+func main() {
+	//ประกาศ defer ก่อนบรรทัดนั้นจะทำหลังสุด
+	defer func ()  {
+		fmt.Println("anonymous function")
+	}()
+	defer LogEnd()
 	GetMember()
+	CheckServerResponse()
 }

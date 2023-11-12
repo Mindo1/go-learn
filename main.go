@@ -1,19 +1,88 @@
 package main
 
-import "fmt"
+import (
+	"encoding/json"
+	"fmt"
+	"log"
+)
 
-//Array , Slide
-
+// Map, struct,
 func main() {
-	fmt.Println("Hello, world")
+	fmt.Println("xxx")
+	// การ map
+	user := map[string]string{} //ประกาศให้เป็น object ว่างๆ
 
-	// arr := []int{2,4,4,5}
-	arr := make([]int, 4) // ผลลัพท์ที่ได้ [0 0 0 0]
-	arr[0] = 30           //เอา value 30 ใส่ใน arr index ที่ศูนย์ ผลลัพท์ที่ได้ [30 0 0 0]
-	fmt.Println(arr)
+	user["username"] = "mind"
+	user["password"] = "xxxxxx"
+	fmt.Println(user)
+	fmt.Println(user["username"])
 
-	txt := "today is sunday"
-	fmt.Println(txt[0:5]) // [0:5] แปลว่า เอาเฉพาะ index ที่ศูนย์ ถึง 4 หรือ 0,1,2,3,4
-	fmt.Println(arr[0:1])
-	fmt.Println(len(txt))
+	userProfile := UserProfile{
+		Firstname: "matchima",
+		Lastname:  "klom",
+		Age:       20,
+	}
+	userProfile.Address.PostCode = "40000"
+	fmt.Println(userProfile)
+	fmt.Println(userProfile.Firstname)
+
+	//ทำเป็น string ต่อกัน
+	fmt.Println(userProfile.ToFullDesc())
+
+	// แปลง struct เป็น json
+	byteTxtJson, err := json.MarshalIndent(userProfile, "", " ")
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(string(byteTxtJson)) //แปลง จาก byte to string
+
+	// เขียน string หลายบรรทัดใช้ ``
+	dataJson := `{
+	"firstname": "ouddy",
+	"lastname": "moodeng",
+	"Age": 12,
+	"Height": 130,
+	"Address": {
+	 "Address": "BKK",
+	 "PostCode": "40000"
+	},
+	"Bill": {
+	 "BillAddress": "BKK"
+	}
+   }`
+
+	// การแปลง json แปลงเป็น struct
+	var oudProfile UserProfile
+	err = json.Unmarshal([]byte(dataJson), &oudProfile)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println("======== Json to struct")
+	fmt.Println(oudProfile)
+}
+
+type Address struct {
+	Address  string
+	PostCode string
+}
+
+// ปกติ ประกาศใน struct ตัวแรกต้องเป็นตัวพิมพ์ใหญ่
+type UserProfile struct {
+	Firstname string `json:"firstname"` // เปลี่ยนชื่อ field ในไฟล์ json
+	Lastname  string `json:"lastname"`
+	Age       int
+	Height    float32
+	// วิธีการ ref หา อีก struct นึง
+	Address Address
+
+	// วิธีการ ประกาศแบบ anonymous struct
+	Bill struct {
+		BillAddress string
+	}
+}
+
+// ทำเป็น
+func (u UserProfile) ToFullDesc() string {
+	return fmt.Sprintf("%s %s %d %s", u.Firstname, u.Lastname, u.Age, u.Address.Address)
 }

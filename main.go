@@ -1,30 +1,27 @@
 package main
 
 import (
-	"fmt"
-	"io"
-	"log"
 	"net/http"
+
+	"github.com/labstack/echo/v4"
 )
 
-func FuncIndex(w http.ResponseWriter, r *http.Request) {
-	io.WriteString(w, "Hello World, ")
-	fmt.Println(r.Method)
-	// การเขียน query param http://localhost:8000/?name=mind
-	fmt.Println(r.URL.Query().Get("name"))
-	if r.Method == "GET" {
-		io.WriteString(w, "hello world this is get method")
-	} else {
-		io.WriteString(w, "hello world this is other method")
-	}
-
+func HandleIndex(c echo.Context) error {
+	name := c.QueryParam("name")
+	return c.String(http.StatusOK, "Hello World, "+name)
 }
 
 func main() {
-	http.HandleFunc("/", FuncIndex)
-	fmt.Println("start server completed")
-	error := http.ListenAndServe(":8000", nil)
-	if error != nil {
-		log.Fatal(error)
-	}
+	e := echo.New()
+
+	// ===== before refactor
+	// e.GET("/", func(c echo.Context) error {
+	//     return c.String(http.StatusOK, "Hello, World!")
+	// })
+
+	// ===== after refactor
+	e.GET("/", HandleIndex)
+	e.POST("/", HandleIndex)
+
+	e.Logger.Fatal(e.Start(":1323"))
 }

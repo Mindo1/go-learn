@@ -49,11 +49,12 @@ func CheckServerResponse() {
 }
 
 func main() {
-	//ประกาศ defer ก่อนบรรทัดนั้นจะทำหลังสุด
-	defer func ()  {
-		fmt.Println("anonymous function")
+	defer func() {
+		if r := recover(); r != nil { //print log panic ที่อ่านง่ายมาแสดง
+			fmt.Println("recover")
+			fmt.Println(r)
+		}
 	}()
-	defer LogEnd()
 	GetMember()
 	CheckServerResponse()
 }

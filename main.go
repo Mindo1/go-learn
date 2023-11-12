@@ -1,60 +1,19 @@
 package main
 
-import (
-	"fmt"
-	"time"
-)
+import "fmt"
 
-func IsInSyetem(username string) bool {
-	return true
-}
-
-func GetUserDetail(username string) (int, string) {
-
-	return 201, "manager"
-}
-
-func GetDeparture(username string, departure *string) {
-	if username != "" {
-		*departure = "home"
-	}
-}
-
-func CheckLogin(username string, password string) {
-	if IsInSyetem(username) {
-		fmt.Println("found user in system")
-		GetUserDetail(username)
-		departure := ""
-		GetDeparture(username, &departure)
-		fmt.Println(departure)
-	}
-}
-
-func LogEnd() {
-	time.Now()
-	fmt.Println("completed program")
-	fmt.Println(time.Now())
-
-}
-
-func GetMember() {
-	fmt.Println("please wait...")
-	time.Sleep(3 * time.Second)
-}
-
-func CheckServerResponse() {
-	fmt.Println("check server time")
-	time.Sleep(3 * time.Second)
-	panic("server error")
-}
+//Array , Slide
 
 func main() {
-	defer func() {
-		if r := recover(); r != nil { //print log panic ที่อ่านง่ายมาแสดง
-			fmt.Println("recover")
-			fmt.Println(r)
-		}
-	}()
-	GetMember()
-	CheckServerResponse()
+	fmt.Println("Hello, world")
+
+	// arr := []int{2,4,4,5}
+	arr := make([]int, 4) // ผลลัพท์ที่ได้ [0 0 0 0]
+	arr[0] = 30           //เอา value 30 ใส่ใน arr index ที่ศูนย์ ผลลัพท์ที่ได้ [30 0 0 0]
+	fmt.Println(arr)
+
+	txt := "today is sunday"
+	fmt.Println(txt[0:5]) // [0:5] แปลว่า เอาเฉพาะ index ที่ศูนย์ ถึง 4 หรือ 0,1,2,3,4
+	fmt.Println(arr[0:1])
+	fmt.Println(len(txt))
 }

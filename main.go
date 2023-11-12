@@ -1,79 +1,58 @@
 package main
 
 import (
-	"database/sql"
-	"fmt"
 	"net/http"
+	"time"
 
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
-	_ "github.com/lib/pq"
+	"github.com/labstack/echo/v4/middleware"
 )
 
-// Connect DB
-
-const (
-	DB_NAME     = "greekybase"
-	DB_USER     = "postgres"
-	DB_PASSWORD = "mypassword"
-	DB_HOST     = "host.docker.internal"
-)
-
-type Member struct {
-	ID       int    `json:"id"`
-	Username string `json:"username"`
-	Email    string `json:"email"`
+// payload
+type jwtCustomClaims struct {
+	Name  string `json:"name"`
+	Admin bool   `json:"admin"`
+	jwt.RegisteredClaims
 }
 
-var db *sql.DB
+func login(c echo.Context) error {
+	username := c.FormValue("username")
+	password := c.FormValue("password")
 
-func init() {
+	if username != "admin" || password != "1234" {
+		return echo.ErrUnauthorized
 
-	var err error
-
-	connStr := fmt.Sprintf("host=%s user=%s password=%s dbname=%s sslmode=disable", DB_HOST, DB_USER, DB_PASSWORD, DB_NAME)
-	db, err = sql.Open("postgres", connStr)
-	if err != nil {
-		fmt.Println("Error opening database connection:", err)
-		return
 	}
 
-	err = db.Ping()
+	claims := &jwtCustomClaims{
+		"admin_name",
+		true,
+		jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 72)),
+		},
+	}
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	t, err := token.SignedString([]byte("secret"))
 	if err != nil {
-		fmt.Println("Error pinging database:", err)
-		return
+		return err
 	}
 
-	fmt.Println("Connected to the database")
+	return c.JSON(http.StatusOK, echo.Map{
+		"token": t,
+	})
+
 }
-
-// Handler functions
-func GetMembers(c echo.Context) error {
-	rows, err := db.Query("SELECT id, username, email FROM members")
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to fetch members"})
-	}
-	defer rows.Close()
-
-	var members []Member
-	for rows.Next() {
-		var member Member
-		err := rows.Scan(&member.ID, &member.Username, &member.Email)
-		if err != nil {
-			return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to scan members"})
-		}
-		members = append(members, member)
-	}
-
-	return c.JSON(http.StatusOK, members)
-}
-
-// Start the Echo server
 func main() {
 	e := echo.New()
+	e.GET("/", func(c echo.Context) error {
+		return c.String(http.StatusOK, "Hello, World!")
+	})
 
-	// Routes
-	e.GET("/", GetMembers)
+	e.Use(middleware.Logger())
+	e.Use(middleware.Recover())
 
-	// Start server
-	e.Logger.Fatal(e.Start(":8080"))
+	e.POST("/login", login)
+
+	e.Logger.Fatal(e.Start(":1323"))
 }
